@@ -19,6 +19,7 @@ vendor/
 
 # IDE specific files
 **/.idea
+**/.idea/
 .vscode
 
 # Generated files
