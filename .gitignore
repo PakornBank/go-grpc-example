@@ -18,14 +18,14 @@ vendor/
 **/.env
 
 # IDE specific files
-.idea
+**/.idea
 .vscode
 
 # Generated files
 internal/gen/
 
 # Binary directory
-.bin/
+**/.bin/
 
 # OS specific
 .DS_Store
