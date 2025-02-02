@@ -7,12 +7,15 @@ import (
 )
 
 type Config struct {
-	ServerPort string `mapstructure:"SERVER_PORT"`
-	DBHost     string `mapstructure:"DB_HOST"`
-	DBPort     string `mapstructure:"DB_PORT"`
-	DBUser     string `mapstructure:"DB_USER"`
-	DBPassword string `mapstructure:"DB_PASSWORD"`
-	DBName     string `mapstructure:"DB_NAME"`
+	ServerPort     string `mapstructure:"SERVER_PORT"`
+	DBHost         string `mapstructure:"DB_HOST"`
+	DBPort         string `mapstructure:"DB_PORT"`
+	DBUser         string `mapstructure:"DB_USER"`
+	DBPassword     string `mapstructure:"DB_PASSWORD"`
+	DBName         string `mapstructure:"DB_NAME"`
+	CACertPath     string `mapstructure:"CA_CERT_PATH"`
+	ServerCertPath string `mapstructure:"SERVER_CERT_PATH"`
+	ServerKeyPath  string `mapstructure:"SERVER_KEY_PATH"`
 }
 
 func LoadConfig() (*Config, error) {
