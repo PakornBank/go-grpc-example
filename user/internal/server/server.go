@@ -54,6 +54,7 @@ func (s *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb
 func (s *Server) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUserResponse, error) {
 	user, err := s.service.GetUser(ctx, req.UserId)
 	if err != nil {
+		log.Printf("get user error: %v", err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
