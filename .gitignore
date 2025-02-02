@@ -33,3 +33,10 @@ internal/gen/
 
 # Log files
 *.log
+
+# Certificates
+**/*.crt
+**/*.key
+**/*.pem
+**/*.srl
+**/*.cnf
