@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 
 	authPB "github.com/PakornBank/go-grpc-example/auth/proto/auth/v1"
@@ -43,6 +44,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
+	// Register the user with the auth service.
 	res, err := h.authClient.Register(c.Request.Context(), &authPB.RegisterRequest{
 		Email:    input.Email,
 		Password: input.Password,
@@ -53,21 +55,32 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		case codes.AlreadyExists:
 			c.JSON(http.StatusConflict, gin.H{"error": "email already exists"})
 		default:
+			log.Printf("auth service register error: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		}
 		return
 	}
 
+	// Create a user with the user service.
 	if _, err := h.userClient.CreateUser(c.Request.Context(), &userPB.CreateUserRequest{
 		UserId:   res.UserId,
 		Email:    input.Email,
 		FullName: input.FullName,
 	}); err != nil {
 		st, _ := status.FromError(err)
+
+		// Rollback the user registration if the user creation fails.
+		if _, err := h.authClient.DeleteUser(c.Request.Context(), &authPB.DeleteUserRequest{UserId: res.UserId}); err != nil {
+			log.Printf("rollback failed for UserID: %s, error: %v", res.UserId, err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+			return
+		}
+
 		switch st.Code() {
 		case codes.AlreadyExists:
 			c.JSON(http.StatusConflict, gin.H{"error": "email already exists"})
 		default:
+			log.Printf("user service create user error: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		}
 		return
@@ -94,6 +107,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		case codes.Unauthenticated:
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		default:
+			log.Printf("auth service login error: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		}
 		return

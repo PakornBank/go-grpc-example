@@ -2,12 +2,15 @@ syntax = "proto3";
 
 package auth.v1;
 
+import "google/protobuf/empty.proto";
+
 option go_package = "github.com/PakornBank/go-grpc-example/pkg/pb/auth/v1;authv1";
 
 service AuthService {
   rpc Login(LoginRequest) returns (LoginResponse);
   rpc Register(RegisterRequest) returns (RegisterResponse);
   rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenResponse);
+  rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
 }
 
 message LoginRequest {
@@ -36,4 +39,8 @@ message VerifyTokenResponse {
   string user_id = 1;
   string email = 2;
   bool valid = 3;
+}
+
+message DeleteUserRequest {
+  string user_id = 1;
 }

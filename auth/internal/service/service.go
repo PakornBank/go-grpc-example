@@ -19,6 +19,7 @@ var (
 	ErrInvalidToken       = errors.New("invalid token")
 	ErrTokenExpired       = errors.New("token expired")
 	ErrUnexpectedSigning  = errors.New("unexpected signing method")
+	ErrRecordNotFound     = errors.New("record not found")
 )
 
 // Service defines the methods that a service must implement.
@@ -26,6 +27,7 @@ type Service interface {
 	Register(ctx context.Context, email, password string) (string, error)
 	Login(ctx context.Context, email, password string) (string, error)
 	VerifyToken(token string) (string, string, bool, error)
+	DeleteUser(ctx context.Context, id string) error
 }
 
 // service is a struct that provides methods to interact with the authentication service.
@@ -91,6 +93,11 @@ func (s *service) Login(ctx context.Context, email, password string) (string, er
 	}
 
 	return token, nil
+}
+
+// DeleteUser deletes a user record.
+func (s *service) DeleteUser(ctx context.Context, id string) error {
+	return s.repository.DeleteByID(ctx, id)
 }
 
 func (s *service) VerifyToken(token string) (string, string, bool, error) {

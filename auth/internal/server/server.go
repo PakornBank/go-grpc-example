@@ -9,6 +9,7 @@ import (
 	pb "github.com/PakornBank/go-grpc-example/auth/proto/auth/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // Server handles authentication gRPC requests.
@@ -49,6 +50,19 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 	}
 
 	return &pb.LoginResponse{Token: token}, nil
+}
+
+func (s *Server) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*emptypb.Empty, error) {
+	err := s.service.DeleteUser(ctx, req.UserId)
+	if err != nil {
+		if errors.Is(err, service.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "user not found")
+		}
+		log.Printf("delete user error: %v", err)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 func (s *Server) VerifyToken(ctx context.Context, req *pb.VerifyTokenRequest) (*pb.VerifyTokenResponse, error) {

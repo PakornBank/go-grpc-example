@@ -5,12 +5,14 @@ import (
 	"errors"
 
 	"github.com/PakornBank/go-grpc-example/auth/internal/model"
+	"github.com/PakornBank/go-grpc-example/auth/internal/service"
 	"gorm.io/gorm"
 )
 
 type Repository interface {
 	CreateUser(ctx context.Context, credential *model.Credential) error
 	FindByEmail(ctx context.Context, email string) (*model.Credential, error)
+	DeleteByID(ctx context.Context, id string) error
 	// FindByID(ctx context.Context, id string) (*model.Credential, error)
 }
 
@@ -39,6 +41,18 @@ func (r *repository) FindByEmail(ctx context.Context, email string) (*model.Cred
 	}
 
 	return &credential, nil
+}
+
+// DeleteByID deletes a user record from the database.
+func (r *repository) DeleteByID(ctx context.Context, id string) error {
+	result := r.db.WithContext(ctx).Delete(&model.Credential{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return service.ErrRecordNotFound
+	}
+	return nil
 }
 
 //// FindByID retrieves a user from the database by their email address.
