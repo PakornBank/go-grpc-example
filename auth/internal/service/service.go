@@ -46,7 +46,10 @@ func NewService(repository repository.Repository, config *config.Config) Service
 
 // Register handles the user registration process.
 func (s *service) Register(ctx context.Context, email, password string) (string, error) {
-	existingCredential, _ := s.repository.FindByEmail(ctx, email)
+	existingCredential, err := s.repository.FindByEmail(ctx, email)
+	if err != nil {
+		return "", fmt.Errorf("failed to find user by email: %w", err)
+	}
 	if existingCredential != nil {
 		return "", ErrEmailAlreadyExists
 	}
@@ -72,6 +75,9 @@ func (s *service) Register(ctx context.Context, email, password string) (string,
 func (s *service) Login(ctx context.Context, email, password string) (string, error) {
 	user, err := s.repository.FindByEmail(ctx, email)
 	if err != nil {
+		return "", fmt.Errorf("failed to find user by email: %w", err)
+	}
+	if user == nil {
 		return "", ErrInvalidCredentials
 	}
 
